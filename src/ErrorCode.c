@@ -34,6 +34,6 @@ const char* error_getErrorMessage(ErrorCode code) {
 	if (code == CANT_CALCULATE) {
 		return "the matrixs you gave are impossible to calculate";
 	}
-	return NULL;
+	return "unknown eror";
 
 }

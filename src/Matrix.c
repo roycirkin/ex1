@@ -7,6 +7,15 @@
 #include "Matrix.h"
 #include "Matrix_impl.h"
 
+typedef struct Matrix{
+size_t height;
+sixe_t width;
+double* ptr;
+
+} Matrix;
+
+
+
 
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     
