@@ -5,13 +5,11 @@
 
 #include "ErrorCode.h"
 #include "Matrix.h"
-#include "Matrix_impl.h"
 
 typedef struct Matrix{
-size_t height;
-sixe_t width;
-double* ptr;
-
+	size_t height;
+	size_t width;
+	double* ptr;
 } Matrix;
 
 
@@ -202,7 +200,7 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 		double val1 = 0, val2 = 0, sum = 0;
 
 		for (size_t i = 0; i < lhs->height; i++) {
-			for (size_t j = 0; i < rhs->width; j++) {
+			for (size_t j = 0; j < rhs->width; j++) {
 				for (size_t k = 0; k < lhs->width; k++) {
 					matrix_getValue(lhs, i, k, &val1);
 					matrix_getValue(rhs, k, j, &val2);
@@ -221,7 +219,7 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	}
 
 	ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
-		if (matrix == null) {
+		if (matrix == NULL) {
 			return MATRIX_IS_NULL;
 		}
 		if ((matrix->ptr) == NULL) {
@@ -229,9 +227,10 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 		}
 
 		double temp = 0;
-		for (size_t i = 0; i < lhs->height; i++) {
-			for (size_t j = 0; i < rhs->width; j++) {
-				matrix_setValue(matrix, i, j, scalar * matrix_getValue(matrix, i, j, &temp));
+		for (size_t i = 0; i < matrix->height; i++) {
+			for (size_t j = 0; j < matrix->width; j++) {
+				matrix_getValue(matrix, i, j, &temp);
+				matrix_setValue(matrix, i, j, scalar * temp);
 
 
 			}
