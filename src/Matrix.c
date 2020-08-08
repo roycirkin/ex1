@@ -14,15 +14,21 @@ typedef struct Matrix{
 
 
 
+#define CHECK_MATRIX_ALLOC(matrix)\
+    if ((matrix) == NULL) {\
+		return ERROR_MALLOC_FAILED;\
+	}
+#define CHECK_MATRIX_NULL(matrix)\
+    if ((matrix) == NULL) {\
+		return ERROR_MATRIX_IS_NULL;\
+	}
 
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     
-	 matrix_destroy(*matrix);
+	matrix_destroy(*matrix);
 
-	*matrix = (struct Matrix*)malloc(sizeof(struct Matrix));
-	if ((*matrix) == NULL) {
-		return MALLOC_FAILED;
-	}
+	CHECK_MATRIX_ALLOC(*matrix = (struct Matrix*)malloc(sizeof(struct Matrix)));
+	
 	(*matrix)->height = height;
 	(*matrix)->width = width;
 
@@ -30,7 +36,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 	if ((*matrix)->ptr == NULL) {
 		matrix_destroy(*matrix);
 		*matrix = NULL;
-		return MALLOC_FAILED;
+		return ERROR_MALLOC_FAILED;
 	}
 
 	return ERROR_SUCCESS;
@@ -41,13 +47,15 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
-	 matrix_destroy(*result);
+	matrix_destroy(*result);
 
+	// CHECK_MATRIX_NULL(source);
 	if (source == NULL) {
-		return MATRIX_IS_NULL;
+		return ERROR_MATRIX_IS_NULL;
 	}
+
 	if (source->ptr == NULL) {
-		return MATRIX_IS_NULL;
+		return ERROR_MATRIX_IS_NULL;
 	}
 
 	ErrorCode res;
@@ -71,9 +79,11 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	}
 
 	ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
+		// CHECK_MATRIX_NULL(matrix);
 		if (matrix == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
+
 		*result = matrix->height;
 		return ERROR_SUCCESS;
 
@@ -81,8 +91,9 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	}
 
 	ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
+		// CHECK_MATRIX_NULL(matrix);
 		if (matrix == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 		*result = matrix->width;
 		return ERROR_SUCCESS;
@@ -92,13 +103,13 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
 	ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 		double value) {
-
+		// CHECK_MATRIX_NULL(matrix);
 		if (matrix == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 
 		if (rowIndex >= matrix->height || colIndex >= matrix->width) {
-			return OUT_OF_MATRIX_ERROR;
+			return ERROR_OUT_OF_MATRIX;
 		}
 
 		matrix->ptr[rowIndex * matrix->width + colIndex] = value;
@@ -109,13 +120,13 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
 	ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 		double* value) {
-
+		// CHECK_MATRIX_NULL(matrix);
 		if (matrix == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 
 		if (rowIndex >= matrix->height || colIndex >= matrix->width) {
-			return OUT_OF_MATRIX_ERROR;
+			return ERROR_OUT_OF_MATRIX;
 		}
 
 		*value = matrix->ptr[rowIndex * matrix->width + colIndex];
@@ -127,17 +138,18 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 		
  		matrix_destroy(*result);
-
+		// CHECK_MATRIX_NULL(lhs);
+		// CHECK_MATRIX_NULL(rhs);
 		if (lhs == NULL || rhs == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 		if ((lhs->ptr) == NULL || (rhs->ptr) == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 
 
 		if (lhs->height != rhs->height || lhs->width != rhs->width) {
-			return CANT_CALCULATE;
+			return ERROR_CANT_CALCULATE;
 		}
 
 
@@ -178,16 +190,18 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 
 		matrix_destroy(*result);
-
+		// CHECK_MATRIX_NULL(lhs);
+		// CHECK_MATRIX_NULL(rhs);
 		if (lhs == NULL || rhs == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
+
 		if ((lhs->ptr) == NULL || (rhs->ptr) == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 
 		if (lhs->width != rhs->height) {
-			return CANT_CALCULATE;
+			return ERROR_CANT_CALCULATE;
 		}
 
 		ErrorCode res;
@@ -219,11 +233,13 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	}
 
 	ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
+		// CHECK_MATRIX_NULL(matrix);
 		if (matrix == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
+		
 		if ((matrix->ptr) == NULL) {
-			return MATRIX_IS_NULL;
+			return ERROR_MATRIX_IS_NULL;
 		}
 
 		double temp = 0;
