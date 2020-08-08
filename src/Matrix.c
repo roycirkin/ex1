@@ -14,22 +14,22 @@ typedef struct Matrix{
 
 
 // check if the allocate failed
-#define CHECK_MATRIX_ALLOC(matrix)												\
-    if ((matrix) == NULL){														\
-		return ERROR_MALLOC_FAILED;                                             \
+#define CHECK_MATRIX_ALLOC(matrix)                           \
+    if ((matrix) == NULL){                                   \
+		return ERROR_MALLOC_FAILED;                          \
 	}
 
 // check if the given matrix pointer and data pointer are valid
-#define CHECK_MATRIX_MEMORY(matrix)                                             \
-    if ((matrix) == NULL || (matrix)->ptr == NULL) {                            \
-		return ERROR_MATRIX_IS_NULL;											\
+#define CHECK_MATRIX_MEMORY(matrix)                          \
+    if ((matrix) == NULL || (matrix)->ptr == NULL) {         \
+		return ERROR_MATRIX_IS_NULL;                         \
 	}
 
 // check if a matrix function succeseed and stop the program if its not
-#define CHECK_MATRIX_CALL(call)                                              \
-ErrorCode res = (call);                                                      \
-if (!error_isSuccess(res)) {                                                 \
-	return res;                                                              \
+#define CHECK_MATRIX_CALL(call)                              \
+ErrorCode res = (call);                                      \
+if (!error_isSuccess(res)) {                                 \
+	return res;                                              \
 }
 	
 
