@@ -13,19 +13,30 @@ typedef struct Matrix{
 } Matrix;
 
 
+// check if the allocate failed
+#define CHECK_MATRIX_ALLOC(matrix)												\
+    if ((matrix) == NULL){														\
+		return ERROR_MALLOC_FAILED;                                             \
+	}
 
-#define CHECK_MATRIX_ALLOC(matrix)\
-    if ((matrix) == NULL) {\
-		return ERROR_MALLOC_FAILED;\
+// check if the given matrix pointer and data pointer are valid
+#define CHECK_MATRIX_MEMORY(matrix)                                             \
+    if ((matrix) == NULL || (matrix)->ptr == NULL) {                            \
+		return ERROR_MATRIX_IS_NULL;											\
 	}
-#define CHECK_MATRIX_NULL(matrix)\
-    if ((matrix) == NULL) {\
-		return ERROR_MATRIX_IS_NULL;\
-	}
+
+// check if a matrix function succeseed and stop the program if its not
+#define CHECK_MATRIX_CALL(call)                                              \
+ErrorCode res = (call);                                                      \
+if (!error_isSuccess(res)) {                                                 \
+	return res;                                                              \
+}
+	
 
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     
 	matrix_destroy(*matrix);
+	*matrix = NULL;
 
 	CHECK_MATRIX_ALLOC(*matrix = (struct Matrix*)malloc(sizeof(struct Matrix)));
 	
@@ -33,12 +44,8 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 	(*matrix)->width = width;
 
 	(*matrix)->ptr = (double*)calloc(height * width, sizeof(double));
-	if ((*matrix)->ptr == NULL) {
-		matrix_destroy(*matrix);
-		*matrix = NULL;
-		return ERROR_MALLOC_FAILED;
-	}
-
+	CHECK_MATRIX_MEMORY(*matrix);
+	
 	return ERROR_SUCCESS;
 
 }
@@ -48,65 +55,56 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
 	matrix_destroy(*result);
+	*result = NULL;
 
-	// CHECK_MATRIX_NULL(source);
-	if (source == NULL) {
-		return ERROR_MATRIX_IS_NULL;
-	}
-
-	if (source->ptr == NULL) {
-		return ERROR_MATRIX_IS_NULL;
-	}
-
-	ErrorCode res;
-	res = matrix_create(result, source->height, source->width);
-	if (res != ERROR_SUCCESS) {
-		return res;
-	}
+	CHECK_MATRIX_MEMORY(source);
+	
+	CHECK_MATRIX_CALL(matrix_create(result, source->height, source->width));
 
 	memcpy((*result)->ptr, source->ptr, source->height * source->width * sizeof(double));
 
 	return ERROR_SUCCESS;
 }
 
-	void matrix_destroy(PMatrix matrix) {
-		if (matrix == NULL) {
-			return;
-		}
-		
-		free(matrix->ptr);
-		free(matrix);
+
+
+void matrix_destroy(PMatrix matrix) {
+	if (matrix == NULL) {
+		return;
 	}
+	
+	free(matrix->ptr);
+	free(matrix);
+}
 
-	ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
-		// CHECK_MATRIX_NULL(matrix);
-		if (matrix == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
 
-		*result = matrix->height;
-		return ERROR_SUCCESS;
+
+ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
+
+	CHECK_MATRIX_MEMORY(matrix);
+
+	*result = matrix->height;
+	return ERROR_SUCCESS;
 
 
 	}
 
 	ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
-		// CHECK_MATRIX_NULL(matrix);
-		if (matrix == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
-		*result = matrix->width;
-		return ERROR_SUCCESS;
+		
+	CHECK_MATRIX_MEMORY(matrix);
+		
+
+	*result = matrix->width;
+	return ERROR_SUCCESS;
 
 
 	}
 
 	ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 		double value) {
-		// CHECK_MATRIX_NULL(matrix);
-		if (matrix == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		
+		CHECK_MATRIX_MEMORY(matrix);
+		
 
 		if (rowIndex >= matrix->height || colIndex >= matrix->width) {
 			return ERROR_OUT_OF_MATRIX;
@@ -120,10 +118,9 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
 	ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 		double* value) {
-		// CHECK_MATRIX_NULL(matrix);
-		if (matrix == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		
+		CHECK_MATRIX_MEMORY(matrix);
+		
 
 		if (rowIndex >= matrix->height || colIndex >= matrix->width) {
 			return ERROR_OUT_OF_MATRIX;
@@ -138,14 +135,11 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 		
  		matrix_destroy(*result);
-		// CHECK_MATRIX_NULL(lhs);
-		// CHECK_MATRIX_NULL(rhs);
-		if (lhs == NULL || rhs == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
-		if ((lhs->ptr) == NULL || (rhs->ptr) == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		*result = NULL;
+
+		CHECK_MATRIX_MEMORY(lhs);
+		CHECK_MATRIX_MEMORY(rhs);
+
 
 
 		if (lhs->height != rhs->height || lhs->width != rhs->width) {
@@ -153,12 +147,8 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 		}
 
 
-		ErrorCode res;
-		res = matrix_create(result, lhs->height, lhs->width);
-		if (res != ERROR_SUCCESS) {
-			return res;
-		}
-
+		
+		CHECK_MATRIX_CALL(matrix_create(result, lhs->height, lhs->width));
 
 		size_t row = 0, col = 0, val = 0;
 		double val1 = 0, val2 = 0;
@@ -180,25 +170,19 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 
 		matrix_destroy(*result);
-		// CHECK_MATRIX_NULL(lhs);
-		// CHECK_MATRIX_NULL(rhs);
-		if (lhs == NULL || rhs == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		*result = NULL;
+		
+		CHECK_MATRIX_MEMORY(lhs);
+		CHECK_MATRIX_MEMORY(rhs);
 
-		if ((lhs->ptr) == NULL || (rhs->ptr) == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
 
 		if (lhs->width != rhs->height) {
 			return ERROR_CANT_CALCULATE;
 		}
 
-		ErrorCode res;
-		res = matrix_create(result, lhs->height, lhs->width);
-		if (res != ERROR_SUCCESS) {
-			return res;
-		}
+		
+		CHECK_MATRIX_CALL(matrix_create(result, lhs->height, lhs->width));
+		
 
 		
 		double val1 = 0, val2 = 0, sum = 0;
@@ -223,14 +207,10 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 	}
 
 	ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
-		// CHECK_MATRIX_NULL(matrix);
-		if (matrix == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		
 
-		if ((matrix->ptr) == NULL) {
-			return ERROR_MATRIX_IS_NULL;
-		}
+		CHECK_MATRIX_MEMORY(matrix);
+
 
 		double temp = 0;
 		for (size_t i = 0; i < matrix->height; i++) {
