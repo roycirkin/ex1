@@ -176,16 +176,6 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 
 	}
 
-	double multipyVectors(double* v1, double* v2, size_t length) {
-
-
-		double sum = 0;
-		for (size_t i = 0; i < length; i++) {
-			sum += v1[i] * v2[i];
-		}
-		return sum;
-
-	}
 
 	ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 
@@ -237,7 +227,7 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 		if (matrix == NULL) {
 			return ERROR_MATRIX_IS_NULL;
 		}
-		
+
 		if ((matrix->ptr) == NULL) {
 			return ERROR_MATRIX_IS_NULL;
 		}
