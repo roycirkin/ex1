@@ -3,14 +3,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef enum ErrorCode {
-	// DON'T CHANGE THIS VALUE!
-	ERROR_SUCCESS = 0, 
-	MALLOC_FAILED, 
-	MATRIX_IS_NULL, 
-	OUT_OF_MATRIX_ERROR, 
-	CANT_CALCULATE,
-	ERROR_NOT_IMPLEMENTED = 0x1000,
+typedef enum {
+    // DON'T CHANGE THIS VALUE!
+    ERROR_SUCCESS = 0,
+
+    ERROR_NOT_IMPLEMENTED = 0x1000,
 } ErrorCode;
 
 /**
