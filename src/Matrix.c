@@ -130,7 +130,6 @@ ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
 		return ERROR_SUCCESS;
 
 	}
-	/////////////////////////////////////////////////////////////////free beshgioot vebaklali
 
 	ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 		
