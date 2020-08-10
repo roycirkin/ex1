@@ -44,7 +44,11 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 	(*matrix)->width = width;
 
 	(*matrix)->ptr = (double*)calloc(height * width, sizeof(double));
-	CHECK_MATRIX_MEMORY(*matrix);
+	if((*matrix)->ptr == NULL) {
+		matrix_destroy(*matrix);
+		return ERROR_MALLOC_FAILED;
+	}
+
 	
 	return ERROR_SUCCESS;
 
